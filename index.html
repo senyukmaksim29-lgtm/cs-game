@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Neon Clicker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle, #0f0c20 0%, #060409 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            margin-bottom: 30px;
+        }
+
+        .balance {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00f2fe;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+        }
+
+        .per-second {
+            color: #a0aec0;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .click-area {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .coin-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7f00ff, #e100ff);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(225, 0, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.4);
+            outline: none;
+            transition: transform 0.05s ease, box-shadow 0.2s ease;
+        }
+
+        .coin-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 40px rgba(225, 0, 255, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .shop {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .upgrade-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: #00f2fe;
+            transform: translateY(-2px);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .upgrade-info {
+            text-align: left;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .upgrade-desc {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        .price {
+            color: #00f2fe;
+            font-weight: bold;
+        }
+
+        /* Анімація цифр при кліку */
+        .floating-text {
+            position: absolute;
+            color: #00f2fe;
+            font-size: 1.5rem;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Cyber Clicker</h1>
+        
+        <div class="stats">
+            <div class="balance" id="balance">0</div>
+            <div class="per-second">за секунду: +<span id="cps-val">0</span></div>
+        </div>
+
+        <div class="click-area" id="click-area">
+            <button class="coin-btn" id="coin-btn"></button>
+        </div>
+
+        <div class="shop">
+            <button class="upgrade-btn" id="upg-click">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Потужний клік</div>
+                    <div class="upgrade-desc">Клік: +<span id="click-power">1</span></div>
+                </div>
+                <div class="price"><span id="click-cost">15</span> 🪙</div>
+            </button>
+
+            <button class="upgrade-btn" id="upg-bot">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Кібер Бот</div>
+                    <div class="upgrade-desc">Автоклікер: +1/сек</div>
+                </div>
+                <div class="price"><span id="bot-cost">50</span> 🪙</div>
+            </button>
+
+            <button class="upgrade-btn" id="upg-farm">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Нейромережа</div>
+                    <div class="upgrade-desc">Автоклікер: +8/сек</div>
+                </div>
+                <div class="price"><span id="farm-cost">400</span> 🪙</div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Змінні гри
+        let coins = 0;
+        let clickValue = 1;
+        let cps = 0;
+
+        let costClick = 15;
+        let costBot = 50;
+        let costFarm = 400;
+
+        // Елементи DOM
+        const elBalance = document.getElementById('balance');
+        const elCps = document.getElementById('cps-val');
+        const elCoin = document.getElementById('coin-btn');
+        const elClickArea = document.getElementById('click-area');
+
+        const btnClick = document.getElementById('upg-click');
+        const btnBot = document.getElementById('upg-bot');
+        const btnFarm = document.getElementById('upg-farm');
+
+        // Функція оновлення інтерфейсу
+        function updateUI() {
+            elBalance.textContent = Math.floor(coins);
+            elCps.textContent = cps;
+            
+            document.getElementById('click-power').textContent = clickValue;
+            document.getElementById('click-cost').textContent = costClick;
+            document.getElementById('bot-cost').textContent = costBot;
+            document.getElementById('farm-cost').textContent = costFarm;
+
+            // Кнопки активні тільки якщо вистачає монет
+            btnClick.disabled = coins < costClick;
+            btnBot.disabled = coins < costBot;
+            btnFarm.disabled = coins < costFarm;
+        }
+
+        // Логіка кліку
+        elCoin.addEventListener('click', (e) => {
+            coins += clickValue;
+            createFloatingText(e);
+            updateUI();
+        });
+
+        // Створення літаючих цифр +1 при кліку
+        function createFloatingText(e) {
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.textContent = `+${clickValue}`;
+            
+            // Вираховуємо позицію мишки всередині області кліку
+            const rect = elClickArea.getBoundingClientRect();
+            const x = e.clientX - rect.left - 20;
+            const y = e.clientY - rect.top - 20;
+            
+            text.style.left = `${x}px`;
+            text.style.top = `${y}px`;
+            
+            elClickArea.appendChild(text);
+            
+            setTimeout(() => {
+                text.remove();
+            }, 600);
+        }
+
+        // Купівля апгрейдів
+        btnClick.addEventListener('click', () => {
+            if (coins >= costClick) {
+                coins -= costClick;
+                clickValue += 1;
+                costClick = Math.round(costClick * 1.5);
+                updateUI();
+            }
+        });
+
+        btnBot.addEventListener('click', () => {
+            if (coins >= costBot) {
+                coins -= costBot;
+                cps += 1;
+                costBot = Math.round(costBot * 1.6);
+                updateUI();
+            }
+        });
+
+        btnFarm.addEventListener('click', () => {
+            if (coins >= costFarm) {
+                coins -= costFarm;
+                cps += 8;
+                costFarm = Math.round(costFarm * 1.7);
+                updateUI();
+            }
+        });
+
+        // Щомикроку автокліку (10 разів на секунду для плавності)
+        setInterval(() => {
+            if (cps > 0) {
+                coins += cps / 10;
+                updateUI();
+            }
+        }, 100);
+
+        // Перший запуск
+        updateUI();
+    </script>
+</body>
+</html>
